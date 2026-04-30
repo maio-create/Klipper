@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suivi de vos demandes — Kizeo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --purple:#471D7A;--purple-light:#F3EEF9;
+  --green:#4BAE8A;--green-bg:#E6F5EE;
+  --orange:#F0A04B;--orange-bg:#FEF3E6;
+  --blue:#5B8DEF;--blue-bg:#EEF3FE;
+  --red:#DC2626;--border:#E8E5DF;
+  --text:#1A1A1A;--text2:#6B6B6B;--text3:#9B9B9B;
+  --bg:#F7F6F3;--white:#FFFFFF;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+.header{background:var(--purple);padding:0 24px;height:56px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;}
+.header-logo{display:flex;align-items:center;gap:10px;}
+.header-logo-name{font-size:15px;font-weight:600;color:#fff;letter-spacing:.5px;}
+.header-sep{width:1px;height:20px;background:rgba(255,255,255,0.2);}
+.header-client{font-size:13px;color:rgba(255,255,255,0.7);}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#4BAE8A;}
+.logout-btn{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:transparent;color:rgba(255,255,255,0.6);cursor:pointer;font-family:inherit;transition:all .13s;}
+.logout-btn:hover{background:rgba(255,255,255,0.1);color:#fff;}
+.access-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--purple) 0%,#2D1250 100%);padding:24px;}
+.access-box{background:var(--white);border-radius:20px;padding:44px 40px;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,0.3);text-align:center;}
+.access-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:28px;}
+.access-logo-name{font-size:20px;font-weight:700;color:var(--purple);}
+.access-title{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.access-sub{font-size:13px;color:var(--text3);margin-bottom:24px;line-height:1.6;}
+.access-input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:15px;color:var(--text);outline:none;transition:border-color .15s;text-align:center;letter-spacing:2px;background:var(--bg);margin-bottom:10px;font-family:monospace;}
+.access-input:focus{border-color:var(--purple);}
+.access-btn{width:100%;padding:12px;border:none;border-radius:10px;background:var(--purple);color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s;font-family:inherit;}
+.access-btn:hover{opacity:.85;}
+.access-err{font-size:12px;color:var(--red);margin-top:8px;display:none;}
+.main{display:none;}
+.main.visible{display:block;}
+.content{max-width:720px;margin:0 auto;padding:28px 20px 48px;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+.stat{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+.stat-n{font-size:26px;font-weight:700;line-height:1;margin-bottom:4px;}
+.stat-l{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:500;}
+.filter-row{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.filter-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.fbtn{padding:5px 14px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;transition:all .12s;font-family:inherit;}
+.fbtn:hover{border-color:var(--purple);color:var(--purple);}
+.fbtn.on{background:var(--purple);border-color:var(--purple);color:#fff;}
+.section-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;margin-top:20px;}
+.section-label:first-of-type{margin-top:0;}
+.trow{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;gap:14px;}
+.trow-title{flex:1;font-size:14px;font-weight:400;color:var(--text);line-height:1.4;}
+.trow-date{font-size:11px;color:var(--text3);white-space:nowrap;flex-shrink:0;}
+.spill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0;}
+.spill-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.s-todo{background:var(--blue-bg);color:var(--blue);}
+.s-test{background:var(--orange-bg);color:var(--orange);}
+.s-done{background:var(--green-bg);color:var(--green);}
+.progress-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 24px;margin-bottom:24px;}
+.progress-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;}
+.progress-steps{display:flex;align-items:flex-start;gap:0;}
+.pstep{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
+.pstep:not(:last-child)::after{content:'';position:absolute;top:13px;left:50%;right:-50%;height:2px;background:var(--border);z-index:0;}
+.pstep.done::after{background:var(--green);}
+.pdot{width:26px;height:26px;border-radius:50%;background:var(--border);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;z-index:1;position:relative;color:var(--text3);transition:all .2s;}
+.pstep.done .pdot{background:var(--green);border-color:var(--green);color:#fff;}
+.pstep.current .pdot{background:var(--purple);border-color:var(--purple);color:#fff;box-shadow:0 0 0 4px rgba(71,29,122,.12);}
+.plbl{font-size:10px;color:var(--text3);margin-top:6px;text-align:center;line-height:1.3;}
+.pstep.done .plbl{color:var(--green);font-weight:500;}
+.pstep.current .plbl{color:var(--purple);font-weight:500;}
+.empty{text-align:center;padding:48px 24px;color:var(--text3);}
+.empty-title{font-size:15px;font-weight:500;color:var(--text2);margin-bottom:6px;}
+.loader-wrap{display:flex;align-items:center;justify-content:center;padding:48px;gap:12px;color:var(--text3);}
+.spinner{width:24px;height:24px;border:2.5px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@media(max-width:480px){.stats{grid-template-columns:repeat(2,1fr);}.trow{flex-wrap:wrap;}.trow-date{order:3;width:100%;}}
+</style>
+</head>
+<body>
+
+<div class="access-wrap" id="access-wrap">
+  <div class="access-box">
+    <div class="access-logo">
+      <svg width="28" height="28" viewBox="0 0 34 34" fill="none"><path d="M4 4L30 4L30 30L4 30L4 10L24 10L24 26L8 26L8 14L20 14L20 22L11 22L11 17L17 17L17 19" stroke="#471D7A" stroke-width="2.4" stroke-linecap="square" stroke-linejoin="miter"/><circle cx="17" cy="19" r="1.5" fill="#471D7A"/></svg>
+      <span class="access-logo-name">KLIPPER</span>
+    </div>
+    <div class="access-title">Suivi de vos demandes</div>
+    <div class="access-sub">Entrez votre code pour consulter vos demandes.</div>
+    <input class="access-input" type="text" id="access-token" placeholder="KZO-XXXX-XXXX" autocomplete="off" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')doAccess()">
+    <button class="access-btn" onclick="doAccess()">Acceder</button>
+    <div class="access-err" id="access-err">Code invalide. Contactez votre interlocuteur Kizeo.</div>
+  </div>
+</div>
+
+<div class="main" id="main">
+  <div class="header">
+    <div class="header-logo">
+      <svg width="22" height="22" viewBox="0 0 34 34" fill="none"><path d="M4 4L30 4L30 30L4 30L4 10L24 10L24 26L8 26L8 14L20 14L20 22L11 22L11 17L17 17L17 19" stroke="white" stroke-width="2.4" stroke-linecap="square" stroke-linejoin="miter"/><circle cx="17" cy="19" r="1.5" fill="white"/></svg>
+      <span class="header-logo-name">KLIPPER</span>
+    </div>
+    <div class="header-sep"></div>
+    <span class="header-client" id="header-client"></span>
+    <div class="header-right">
+      <div class="sync-dot" id="sync-dot"></div>
+      <button class="logout-btn" onclick="doLogout()">Deconnexion</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="s-total">-</div><div class="stat-l">Demandes</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--orange)" id="s-open">-</div><div class="stat-l">En cours</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--green)" id="s-done">-</div><div class="stat-l">Livrees</div></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-title">Progression globale</div>
+      <div class="progress-steps">
+        <div class="pstep" id="ps1"><div class="pdot">1</div><div class="plbl">A traiter</div></div>
+        <div class="pstep" id="ps2"><div class="pdot">2</div><div class="plbl">En attente de test</div></div>
+        <div class="pstep" id="ps3"><div class="pdot">3</div><div class="plbl">Livre</div></div>
+      </div>
+    </div>
+    <div style="text-align:right;margin-bottom:16px;">
+      <button onclick="openDemande()" style="padding:9px 18px;border:none;border-radius:9px;background:var(--purple);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;">
+        <span style="font-size:16px;line-height:1">+</span> Soumettre une demande
+      </button>
+    </div>
+    <div class="filter-row">
+      <span class="filter-lbl">Voir</span>
+      <button class="fbtn on" onclick="setFilter('all',this)">Tout</button>
+      <button class="fbtn" onclick="setFilter('open',this)">A traiter</button>
+      <button class="fbtn" onclick="setFilter('test',this)">En attente de test</button>
+      <button class="fbtn" onclick="setFilter('done',this)">Livrees</button>
+    </div>
+    <div id="ticket-list"><div class="loader-wrap"><div class="spinner"></div><span>Chargement...</span></div></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getFirestore, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+const app = initializeApp({apiKey:"AIzaSyDReuFdkQd66n1fIykQh34aZLgL7EwFaF4",authDomain:"kizeo-crm-afcc3.firebaseapp.com",projectId:"kizeo-crm-afcc3",storageBucket:"kizeo-crm-afcc3.firebasestorage.app",messagingSenderId:"813281317162",appId:"1:813281317162:web:c0f557690861fdbe378e53"});
+const db = getFirestore(app);
+window._fb = {db,collection,getDocs,onSnapshot};
+window._fbReady = true;
+window.dispatchEvent(new Event('fb-ready'));
+</script>
+
+<script>
+const TOKEN_KEY='klp_client_token';
+let clientData=null,tickets=[],filter='all',_unsub=null;
+
+function cs(status){
+  if(status==='livre'||status==='refuse')return'done';
+  if(status==='attente')return'test';
+  return'open';
+}
+function pill(status){
+  const c=cs(status);
+  if(c==='done')return'<span class="spill s-done"><span class="spill-dot" style="background:var(--green)"></span>Livre</span>';
+  if(c==='test')return'<span class="spill s-test"><span class="spill-dot" style="background:var(--orange)"></span>En attente de test</span>';
+  return'<span class="spill s-todo"><span class="spill-dot" style="background:var(--blue)"></span>A traiter</span>';
+}
+function ago(iso){if(!iso)return'';const d=Math.floor((Date.now()-new Date(iso))/86400000);if(d<1)return"Auj.";if(d===1)return'Hier';if(d<30)return'Il y a '+d+' j';return new Date(iso).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function doAccess(){
+  const token=(document.getElementById('access-token').value||'').trim().toUpperCase();
+  if(!token){showErr('Entrez votre code.');return;}
+  if(!window._fbReady){setTimeout(doAccess,500);return;}
+  loadToken(token);
+}
+async function loadToken(token){
+  const btn=document.querySelector('.access-btn');
+  btn.textContent='Verification...';btn.disabled=true;
+  document.getElementById('access-err').style.display='none';
+  try{
+    const {db,collection,getDocs}=window._fb;
+    const snap=await getDocs(collection(db,'klipper_tokens'));
+    let found=null;
+    snap.forEach(d=>{const data=d.data();if(data.token===token)found=data;});
+    if(!found){showErr('Code invalide. Contactez votre interlocuteur Kizeo.');btn.textContent='Acceder';btn.disabled=false;return;}
+    clientData=found;
+    localStorage.setItem(TOKEN_KEY,token);
+    logConn();
+    enterApp();
+  }catch(e){showErr('Erreur. Reessayez.');btn.textContent='Acceder';btn.disabled=false;}
+}
+function showErr(m){const el=document.getElementById('access-err');el.textContent=m;el.style.display='block';}
+function enterApp(){
+  document.getElementById('access-wrap').style.display='none';
+  document.getElementById('main').classList.add('visible');
+  document.getElementById('header-client').textContent=clientData.name||'';
+  listen();
+}
+function doLogout(){
+  if(_unsub){_unsub();_unsub=null;}
+  localStorage.removeItem(TOKEN_KEY);
+  clientData=null;tickets=[];
+  document.getElementById('access-wrap').style.display='flex';
+  document.getElementById('main').classList.remove('visible');
+  document.getElementById('access-token').value='';
+  const btn=document.querySelector('.access-btn');btn.textContent='Acceder';btn.disabled=false;
+}
+function listen(){
+  if(_unsub){_unsub();_unsub=null;}
+  const {db,collection,onSnapshot}=window._fb;
+  const name=(clientData.name||'').toLowerCase();
+  const dot=document.getElementById('sync-dot');
+  dot.style.background='var(--orange)';
+  _unsub=onSnapshot(collection(db,'klipper_tickets'),function(snap){
+    const all=[];snap.forEach(d=>all.push(d.data()));
+    tickets=all.filter(t=>t.origine==='client'&&(t.client||'').toLowerCase()===name);
+    tickets.sort((a,b)=>new Date(b.updated||b.created)-new Date(a.updated||a.created));
+    dot.style.background='var(--green)';
+    updateStats();render();
+  },function(){dot.style.background='var(--red)';});
+}
+function updateStats(){
+  const open=tickets.filter(t=>cs(t.status)!=='done').length;
+  const done=tickets.filter(t=>cs(t.status)==='done').length;
+  document.getElementById('s-total').textContent=tickets.length;
+  document.getElementById('s-open').textContent=open;
+  document.getElementById('s-done').textContent=done;
+  // Progress
+  const test=tickets.filter(t=>cs(t.status)==='test').length;
+  const p1=document.getElementById('ps1'),p2=document.getElementById('ps2'),p3=document.getElementById('ps3');
+  p1.className='pstep'+(tickets.length>0?' done':'');
+  p1.querySelector('.pdot').textContent=tickets.length>0?'v':'1';
+  p2.className='pstep'+(done>0?' done':test>0?' current':'');
+  p2.querySelector('.pdot').textContent=done>0?'v':(test>0?test:'2');
+  p3.className='pstep'+(done>0?' current':'');
+  p3.querySelector('.pdot').textContent=done>0?done:'3';
+}
+function setFilter(f,btn){
+  filter=f;
+  document.querySelectorAll('.filter-row .fbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');render();
+}
+function getF(){
+  if(filter==='open')return tickets.filter(t=>cs(t.status)==='open');
+  if(filter==='test')return tickets.filter(t=>cs(t.status)==='test');
+  if(filter==='done')return tickets.filter(t=>cs(t.status)==='done');
+  return tickets;
+}
+function render(){
+  const list=document.getElementById('ticket-list');
+  const shown=getF();
+  if(!shown.length){list.innerHTML='<div class="empty"><div class="empty-title">Aucune demande</div>Aucune demande ne correspond.</div>';return;}
+  const open=shown.filter(t=>cs(t.status)!=='done');
+  const done=shown.filter(t=>cs(t.status)==='done');
+  let html='';
+  if(open.length){html+='<div class="section-label">En cours - '+open.length+'</div>';html+=open.map(row).join('');}
+  if(done.length){if(open.length)html+='<div style="margin-top:20px"></div>';html+='<div class="section-label">Livrees - '+done.length+'</div>';html+=done.map(row).join('');}
+  list.innerHTML=html;
+}
+function row(t){
+  return'<div class="trow">'+pill(t.status)+'<div class="trow-title">'+esc(t.title)+'</div><div class="trow-date">'+ago(t.updated||t.created)+'</div></div>';
+}
+async function logConn(){
+  try{
+    await fetch('https://firestore.googleapis.com/v1/projects/kizeo-crm-afcc3/databases/(default)/documents/klipper_logs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{type:{stringValue:'client_login'},client:{stringValue:clientData.name||''},token:{stringValue:clientData.token||''},ts:{stringValue:new Date().toISOString()},ua:{stringValue:navigator.userAgent.substring(0,120)}}})});
+  }catch(e){}
+}
+function init(){
+  const p=new URLSearchParams(window.location.search);
+  const t=p.get('token');
+  if(t)document.getElementById('access-token').value=t.toUpperCase();
+  const saved=localStorage.getItem(TOKEN_KEY);
+  if(saved)loadToken(saved);
+}
+if(window._fbReady){init();}else{window.addEventListener('fb-ready',init);}
+</script>
+<!-- MODAL DEMANDE -->
+<div id="ov-demande" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:flex-end;justify-content:center;">
+  <div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:600px;max-height:85vh;overflow-y:auto;padding:28px 24px 40px;animation:slideUp .25s ease;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div style="font-size:17px;font-weight:600;color:#1A1A1A;">Nouvelle demande</div>
+      <button onclick="closeDemande()" style="width:30px;height:30px;border-radius:50%;border:1px solid #E8E5DF;background:transparent;font-size:14px;cursor:pointer;color:#6B6B6B;">✕</button>
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:11px;font-weight:600;color:#9B9B9B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Intitulé de la demande *</label>
+      <input id="dem-title" type="text" placeholder="Décrivez brièvement votre demande…" style="width:100%;border:1.5px solid #E8E5DF;border-radius:9px;padding:10px 14px;font-size:14px;outline:none;font-family:inherit;transition:border-color .15s;" onfocus="this.style.borderColor='#471D7A'" onblur="this.style.borderColor='#E8E5DF'">
+    </div>
+    <div style="margin-bottom:20px;">
+      <label style="display:block;font-size:11px;font-weight:600;color:#9B9B9B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Description / Contexte</label>
+      <textarea id="dem-desc" rows="4" placeholder="Expliquez le contexte, l'impact, un exemple de situation…" style="width:100%;border:1.5px solid #E8E5DF;border-radius:9px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;resize:vertical;line-height:1.5;transition:border-color .15s;" onfocus="this.style.borderColor='#471D7A'" onblur="this.style.borderColor='#E8E5DF'"></textarea>
+    </div>
+    <div id="dem-err" style="display:none;font-size:12px;color:#DC2626;margin-bottom:10px;padding:8px 12px;background:#FEE2E2;border-radius:7px;"></div>
+    <button onclick="submitDemande()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#471D7A;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+      Envoyer ma demande →
+    </button>
+    <div id="dem-success" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:32px;margin-bottom:10px;">✅</div>
+      <div style="font-size:15px;font-weight:600;color:#1A6B45;margin-bottom:6px;">Demande envoyée !</div>
+      <div style="font-size:13px;color:#6B6B6B;">Votre équipe Kizeo l'examinera prochainement.</div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes slideUp{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+</style>
+
+<script>
+function openDemande(){
+  document.getElementById('dem-title').value='';
+  document.getElementById('dem-desc').value='';
+  document.getElementById('dem-err').style.display='none';
+  document.getElementById('dem-success').style.display='none';
+  document.getElementById('ov-demande').style.display='flex';
+  setTimeout(function(){document.getElementById('dem-title').focus();},100);
+}
+function closeDemande(){
+  document.getElementById('ov-demande').style.display='none';
+  document.getElementById('dem-success').style.display='none';
+}
+async function submitDemande(){
+  const title=(document.getElementById('dem-title').value||'').trim();
+  const desc=(document.getElementById('dem-desc').value||'').trim();
+  const errEl=document.getElementById('dem-err');
+  if(!title){errEl.textContent='Veuillez saisir un titre.';errEl.style.display='block';return;}
+  errEl.style.display='none';
+  const btn=document.querySelector('#ov-demande button[onclick="submitDemande()"]');
+  btn.textContent='Envoi en cours...';btn.disabled=true;
+  try{
+    await fetch('https://firestore.googleapis.com/v1/projects/kizeo-crm-afcc3/databases/(default)/documents/klipper_demandes',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{
+        title:{stringValue:title},
+        desc:{stringValue:desc},
+        client:{stringValue:clientData?clientData.name:''},
+        token:{stringValue:clientData?clientData.token:''},
+        status:{stringValue:'pending'},
+        created:{stringValue:new Date().toISOString()}
+      }})
+    });
+    btn.textContent='Envoyer ma demande';btn.disabled=false;
+    document.querySelector('#ov-demande > div > *:not(#dem-success)').style.display='none';
+    // Show all children except success, then show success
+    document.getElementById('dem-success').style.display='block';
+    document.getElementById('dem-title').style.display='none';
+    document.getElementById('dem-desc').style.display='none';
+    document.getElementById('dem-err').style.display='none';
+    btn.style.display='none';
+    setTimeout(function(){closeDemande();btn.style.display='';document.getElementById('dem-title').style.display='';document.getElementById('dem-desc').style.display='';},2500);
+  }catch(e){
+    errEl.textContent='Erreur. Reessayez.';errEl.style.display='block';
+    btn.textContent='Envoyer ma demande';btn.disabled=false;
+  }
+}
+// Close on backdrop click
+document.getElementById('ov-demande').addEventListener('click',function(e){if(e.target===this)closeDemande();});
+</script>
+
+</body>
+</html>
