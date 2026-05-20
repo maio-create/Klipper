@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espace client — Kizeo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --purple:#471D7A;--purple2:#5B2D96;--purple-light:#F0EAF9;
+  --blue:#7EB8F7;--blue-bg:#EEF3FE;
+  --orange:#F7C97E;--orange-bg:#FEF3E6;
+  --green:#85D4B0;--green-bg:#E6F5EE;
+  --red:#F0A0A0;--red-bg:#FEE2E2;
+  --gray:#C4D4E8;--gray-bg:#F1F5F9;
+  --border:#E8E5DF;--text:#1A1A1A;--text2:#6B6B6B;--text3:#9B9B9B;
+  --bg:#F5F4F1;--white:#FFFFFF;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 20px rgba(0,0,0,0.10);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;}
+
+/* ACCESS */
+.access-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(140deg,#2D1250 0%,var(--purple) 60%,#6B3FA0 100%);padding:20px;}
+.access-card{background:var(--white);border-radius:24px;padding:48px 44px;width:100%;max-width:400px;box-shadow:0 32px 80px rgba(0,0,0,0.35);text-align:center;}
+.brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:32px;}
+.brand-icon{width:36px;height:36px;}
+.brand-name{font-size:22px;font-weight:700;color:var(--purple);letter-spacing:.5px;}
+.access-title{font-size:20px;font-weight:600;color:var(--text);margin-bottom:8px;}
+.access-sub{font-size:13px;color:var(--text3);margin-bottom:28px;line-height:1.6;}
+.access-inp{width:100%;border:2px solid var(--border);border-radius:12px;padding:13px 16px;font-size:15px;color:var(--text);outline:none;font-family:monospace;letter-spacing:2px;text-align:center;background:#FAFAF9;transition:border-color .15s;margin-bottom:12px;}
+.access-inp:focus{border-color:var(--purple);background:var(--white);}
+.access-btn{width:100%;padding:13px;border:none;border-radius:12px;background:var(--purple);color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;}
+.access-btn:hover{background:var(--purple2);}
+.access-err{font-size:12px;color:var(--red);margin-top:10px;display:none;}
+
+/* HEADER */
+.hdr{background:var(--purple);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.hdr-brand{display:flex;align-items:center;gap:12px;color:#fff;font-weight:700;font-size:16px;}
+.hdr-client{color:rgba(255,255,255,.6);font-size:13px;font-weight:400;margin-left:8px;padding-left:8px;border-left:1px solid rgba(255,255,255,.2);}
+.hdr-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;}
+.hdr-btn:hover{background:rgba(255,255,255,.2);}
+
+/* MAIN */
+.main{max-width:1400px;margin:0 auto;padding:20px 28px;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat-box{background:var(--white);border-radius:12px;padding:14px 20px;box-shadow:var(--shadow);}
+.stat-n{font-size:24px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.stat-l{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);}
+
+/* SECTION */
+.section-hdr{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.section-ico{width:36px;height:36px;border-radius:10px;background:var(--purple-light);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.section-ttl{font-size:16px;font-weight:700;color:var(--text);}
+.section-wrap{background:var(--white);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow);margin-bottom:16px;}
+
+/* KANBAN SECTIONS */
+.kb-type-section{margin-bottom:12px;}
+.kb-type-hdr{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px 10px 0 0;background:var(--white);border:1px solid var(--border);border-left:4px solid var(--border);}
+.kb-type-emoji{font-size:16px;}
+.kb-type-ttl{font-size:13px;font-weight:700;color:var(--text);flex:1;}
+.kb-type-cnt{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;}
+.kb-type-toggle{font-size:12px;color:var(--text3);margin-left:8px;transition:transform .2s;}
+.kb-type-body{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px;background:var(--bg);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;}
+@media(max-width:700px){.kb-type-body{grid-template-columns:1fr;}.stats-row{grid-template-columns:repeat(2,1fr);}}
+
+/* KANBAN COLS */
+.kb-col{background:var(--white);border-radius:10px;border:1px solid var(--border);overflow:hidden;}
+.kb-col-bar{height:3px;}
+.kb-col-hdr{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);}
+.kb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.kb-col-ttl{font-size:11px;font-weight:600;color:var(--text2);flex:1;}
+.kb-cnt{font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;}
+.kb-body{padding:6px;max-height:280px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.kb-card{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:5px;}
+.kb-card:last-child{margin-bottom:0;}
+.kb-card-title{font-size:11px;color:var(--text);line-height:1.4;margin-bottom:2px;}
+.kb-card-date{font-size:10px;color:var(--text3);}
+.kb-empty{padding:16px;text-align:center;font-size:11px;color:var(--text3);font-style:italic;}
+
+/* DEMANDES */
+.dem-empty{text-align:center;padding:40px 20px;color:var(--text3);}
+.dem-empty-ico{font-size:32px;margin-bottom:12px;}
+.dem-card{border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:12px;background:var(--white);}
+.dem-card-ttl{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.dem-card-desc{font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.5;}
+.dem-card-footer{display:flex;align-items:center;gap:8px;}
+.dem-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;}
+.dem-badge.pending{background:#FEF3E6;color:#D97706;}
+.dem-badge.approved{background:var(--green-bg);color:#059669;}
+.dem-badge.rejected{background:var(--red-bg);color:#DC2626;}
+.dem-motif{font-size:11px;color:var(--text3);margin-top:6px;font-style:italic;}
+.dem-date{font-size:11px;color:var(--text3);margin-left:auto;}
+
+/* NEW DEMAND FORM */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:var(--white);border-radius:20px;padding:28px;width:100%;max-width:500px;box-shadow:var(--shadow-md);}
+.modal-ttl{font-size:16px;font-weight:700;margin-bottom:6px;}
+.modal-sub{font-size:12px;color:var(--text3);margin-bottom:20px;}
+.form-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);margin-bottom:5px;display:block;}
+.form-inp{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--text);transition:border-color .15s;margin-bottom:14px;}
+.form-inp:focus{border-color:var(--purple);}
+.form-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:4px;}
+.btn-cancel{background:none;border:1.5px solid var(--border);border-radius:10px;padding:9px 18px;font-size:13px;cursor:pointer;font-family:inherit;color:var(--text2);}
+.btn-submit{background:var(--purple);border:none;border-radius:10px;padding:9px 20px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;}
+.btn-new{background:var(--purple);border:none;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;}
+
+/* SUCCESS/ERROR */
+.feedback{border-radius:14px;padding:20px;text-align:center;display:none;margin-top:16px;}
+.feedback.ok{background:var(--green-bg);color:#065F46;}
+.feedback.er{background:var(--red-bg);color:#991B1B;}
+
+/* LOADING */
+.loading{text-align:center;padding:60px;color:var(--text3);font-size:13px;}
+</style>
+</head>
+<body>
+
+<!-- ACCESS SCREEN -->
+<div class="access-screen" id="access-screen">
+  <div class="access-card">
+    <div class="brand">
+      <svg class="brand-icon" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 4 L30 4 L30 30 L4 30 L4 10 L24 10 L24 26 L8 26 L8 14 L20 14 L20 22 L11 22 L11 17 L17 17 L17 19" stroke="#471D7A" stroke-width="2.2" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+        <circle cx="17" cy="19" r="1.5" fill="#471D7A"/>
+      </svg>
+      <span class="brand-name">KLIPPER</span>
+    </div>
+    <div class="access-title">Espace client</div>
+    <div class="access-sub">Consultez vos demandes et leur avancement en temps réel.</div>
+    <input class="access-inp" id="code-input" placeholder="Votre code accès" maxlength="14" autocomplete="off" spellcheck="false">
+    <button class="access-btn" onclick="doLogin()">Accéder à mon espace</button>
+    <div class="access-err" id="access-err">Code invalide. Contactez votre interlocuteur Kizeo.</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app-screen" style="display:none;">
+  <div class="hdr">
+    <div class="hdr-brand">
+      <svg width="24" height="24" viewBox="0 0 34 34" fill="none">
+        <path d="M4 4 L30 4 L30 30 L4 30 L4 10 L24 10 L24 26 L8 26 L8 14 L20 14 L20 22 L11 22 L11 17 L17 17 L17 19" stroke="white" stroke-width="2.2" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+        <circle cx="17" cy="19" r="1.5" fill="white"/>
+      </svg>
+      KLIPPER
+      <span class="hdr-client" id="hdr-client-name"></span>
+    </div>
+    <button class="hdr-btn" onclick="doLogout()">Déconnexion</button>
+  </div>
+
+  <div class="main">
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-n" id="s-total">-</div><div class="stat-l">Demandes</div></div>
+      <div class="stat-box"><div class="stat-n" style="color:var(--blue)" id="s-open">-</div><div class="stat-l">À traiter</div></div>
+      <div class="stat-box"><div class="stat-n" style="color:var(--orange)" id="s-test">-</div><div class="stat-l">En test</div></div>
+      <div class="stat-box"><div class="stat-n" style="color:var(--green)" id="s-done">-</div><div class="stat-l">Livrées</div></div>
+    </div>
+
+    <div class="section-wrap">
+      <div class="section-hdr">
+        <div class="section-ico">📋</div>
+        <div><div class="section-ttl">Suivi de vos tickets</div></div>
+      </div>
+      <div id="kb-sections-client"><div class="loading">Chargement...</div></div>
+    </div>
+
+    <div class="section-wrap">
+      <div class="section-hdr" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="section-ico">💬</div>
+          <div><div class="section-ttl">Mes demandes</div><div style="font-size:12px;color:var(--text3);">Une question, une nouvelle demande ? Soumettez-la directement ici.</div></div>
+        </div>
+        <button class="btn-new" onclick="openDemande()">+ Nouvelle demande</button>
+      </div>
+      <div id="dem-list"><div class="loading">Chargement...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOUVELLE DEMANDE -->
+<div class="modal-overlay" id="modal-dem">
+  <div class="modal-box">
+    <div class="modal-ttl">Nouvelle demande</div>
+    <div class="modal-sub">Décrivez votre demande. Notre équipe reviendra vers vous rapidement.</div>
+    <label class="form-lbl">Intitulé de la demande *</label>
+    <input class="form-inp" id="dem-title" placeholder="Ex: Pouvoir exporter les données en PDF…">
+    <label class="form-lbl">Description / Contexte</label>
+    <textarea class="form-inp" id="dem-desc" rows="4" placeholder="Décrivez le contexte, vos besoins…"></textarea>
+    <div class="form-btns">
+      <button class="btn-cancel" onclick="closeDemande()">Annuler</button>
+      <button class="btn-submit" onclick="submitDemande()">Envoyer ma demande</button>
+    </div>
+    <div class="feedback ok" id="dem-ok">✅ Demande envoyée ! Notre équipe Kizeo va examiner votre demande.</div>
+    <div class="feedback er" id="dem-er">❌ Une erreur est survenue. Veuillez réessayer.</div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+var FB_PROJECT = 'kizeo-crm-afcc3';
+var FB_API_KEY = 'AIzaSyDReuFdkQd66n1fIykQh34aZLgL7EwFaF4';
+var currentToken = null;
+var currentClient = null;
+var tickets = [];
+var demandes = [];
+
+var TYPES_CLIENT = [
+  {id:'bug',          label:'Bugs',           emoji:'🐛', color:'#7C3AED'},
+  {id:'indispensable',label:'Indispensables',  emoji:'⚡', color:'#D97706'},
+  {id:'evolution',    label:'Évolutions',      emoji:'✨', color:'#0891B2'},
+];
+var COLS_CLIENT = [
+  {id:'open',  label:'À traiter',          color:'#7EB8F7', bg:'#EEF3FE'},
+  {id:'test',  label:'En attente de test', color:'#F7C97E', bg:'#FEF3E6'},
+  {id:'done',  label:'Livrés',             color:'#85D4B0', bg:'#E6F5EE'},
+];
+
+// ── UTILS ──
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function ago(ts){
+  if(!ts)return'';
+  var d=new Date(ts),now=new Date(),diff=Math.floor((now-d)/1000);
+  if(diff<60)return'à l\'instant';
+  if(diff<3600)return'il y a '+Math.floor(diff/60)+' min';
+  if(diff<86400)return'il y a '+Math.floor(diff/3600)+' h';
+  return'il y a '+Math.floor(diff/86400)+' j';
+}
+function cs(status){
+  if(status==='livre'||status==='refuse')return'done';
+  if(status==='attente'||status==='prevenir')return'test';
+  return'open';
+}
+// Firebase SDK helpers
+var db = null;
+function initFirebase(){
+  if(db)return Promise.resolve();
+  return import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js').then(function(m){
+    var app = m.initializeApp({apiKey:FB_API_KEY,projectId:FB_PROJECT});
+    return import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js').then(function(fs){
+      db = fs.getFirestore(app);
+      window._fsdk = fs;
+      return db;
+    });
+  });
+}
+function fbGetDocs(collName){
+  return initFirebase().then(function(){
+    return window._fsdk.getDocs(window._fsdk.collection(db, collName));
+  });
+}
+function fbAddDoc(collName, data){
+  return initFirebase().then(function(){
+    return window._fsdk.addDoc(window._fsdk.collection(db, collName), data);
+  });
+}
+
+// ── AUTH ──
+function doLogin(){
+  var code=(document.getElementById('code-input').value||'').trim().toUpperCase();
+  if(!code){showErr('Saisissez votre code d\'accès.');return;}
+  checkToken(code);
+}
+function checkToken(code){
+  fbGetDocs('klipper_tokens').then(function(snap){
+    var found=null;
+    snap.forEach(function(doc){
+      var d=doc.data();
+      if(d.token===code){found={...d,_id:doc.id};}
+    });
+    if(!found){showErr('Code invalide. Contactez votre interlocuteur Kizeo.');return;}
+    currentToken=code;
+    currentClient=found.name||found.client||found.clientName||code;
+    logConnection(found._id);
+    sessionStorage.setItem('klp_token',code);
+    sessionStorage.setItem('klp_client',currentClient);
+    showApp();
+  }).catch(function(e){showErr('Erreur de connexion. Réessayez.');console.error(e);});
+}
+function logConnection(tokenDocId){
+  fbAddDoc('klipper_logs',{
+    token:currentToken,
+    client:currentClient,
+    date:new Date().toISOString(),
+    ua:navigator.userAgent.substring(0,100)
+  });
+}
+function showErr(msg){
+  var el=document.getElementById('access-err');
+  el.textContent=msg;el.style.display='block';
+}
+function doLogout(){
+  sessionStorage.removeItem('klp_token');
+  sessionStorage.removeItem('klp_client');
+  document.getElementById('access-screen').style.display='flex';
+  document.getElementById('app-screen').style.display='none';
+}
+function showApp(){
+  document.getElementById('access-screen').style.display='none';
+  document.getElementById('app-screen').style.display='block';
+  document.getElementById('hdr-client-name').textContent=currentClient;
+  loadData();
+}
+
+// ── LOAD DATA ──
+function loadData(){
+  // Load tickets via Firebase SDK
+  fbGetDocs('klipper_tickets').then(function(snap){
+    var cur=(currentClient||'').trim().toLowerCase();
+    tickets=[];
+    snap.forEach(function(doc){
+      var t=doc.data();t._id=doc.id;
+      var clients=(t.client||'').split(',').map(function(c){return c.trim().toLowerCase();}).filter(Boolean);
+      if(clients.length&&clients.indexOf(cur)>=0) tickets.push(t);
+    });
+    renderKanban();
+  });
+  // Load demandes
+  fbGetDocs('klipper_demandes').then(function(snap){
+    var cur=(currentClient||'').trim().toLowerCase();
+    demandes=[];
+    snap.forEach(function(doc){
+      var d=doc.data();d._id=doc.id;
+      var clients=(d.client||'').split(',').map(function(c){return c.trim().toLowerCase();}).filter(Boolean);
+      if(clients.indexOf(cur)>=0) demandes.push(d);
+    });
+    demandes.sort(function(a,b){return new Date(b.created||0)-new Date(a.created||0);});
+    renderDemandes();
+  });
+}
+
+// ── KANBAN ──
+function renderKanban(){
+  var container=document.getElementById('kb-sections-client');
+  if(!container)return;
+  container.innerHTML='';
+
+  var open=tickets.filter(function(t){return cs(t.status)==='open';}).length;
+  var test=tickets.filter(function(t){return cs(t.status)==='test';}).length;
+  var done=tickets.filter(function(t){return cs(t.status)==='done';}).length;
+  document.getElementById('s-total').textContent=tickets.length;
+  document.getElementById('s-open').textContent=open;
+  document.getElementById('s-test').textContent=test;
+  document.getElementById('s-done').textContent=done;
+
+  var types=TYPES_CLIENT.slice();
+  // Add unknown types
+  tickets.forEach(function(t){
+    if(t.type&&!types.find(function(tp){return tp.id===t.type;})){
+      types.push({id:t.type,label:t.type,emoji:'📌',color:'#64748B'});
+    }
+  });
+
+  var hasAny=false;
+  types.forEach(function(tp){
+    var typeTix=tickets.filter(function(t){return t.type===tp.id;});
+    if(!typeTix.length)return;
+    hasAny=true;
+
+    var section=document.createElement('div');section.className='kb-type-section';
+
+    var sectionOpen=true;
+    var hdr=document.createElement('div');hdr.className='kb-type-hdr';
+    hdr.style.cssText='border-left-color:'+tp.color+';cursor:pointer;user-select:none;';
+    hdr.innerHTML=
+      '<span class="kb-type-emoji">'+tp.emoji+'</span>'+
+      '<span class="kb-type-ttl">'+tp.label+'</span>'+
+      '<span class="kb-type-cnt" style="background:'+tp.color+'22;color:'+tp.color+'">'+typeTix.length+'</span>'+
+      '<span class="kb-type-toggle">▾</span>';
+
+    var body=document.createElement('div');body.className='kb-type-body';
+    hdr.onclick=function(){
+      sectionOpen=!sectionOpen;
+      body.style.display=sectionOpen?'':'none';
+      hdr.querySelector('.kb-type-toggle').textContent=sectionOpen?'▾':'▸';
+    };
+
+    COLS_CLIENT.forEach(function(col){
+      var colTix=typeTix.filter(function(t){return cs(t.status)===col.id;});
+      var colDiv=document.createElement('div');colDiv.className='kb-col';
+
+      var bar=document.createElement('div');bar.className='kb-col-bar';bar.style.background=col.color;
+
+      var colHdr=document.createElement('div');colHdr.className='kb-col-hdr';
+      colHdr.innerHTML=
+        '<div class="kb-dot" style="background:'+col.color+'"></div>'+
+        '<div class="kb-col-ttl">'+col.label+'</div>'+
+        '<div class="kb-cnt" style="background:'+col.bg+';color:'+col.color+'">'+colTix.length+'</div>';
+
+      var colBody=document.createElement('div');colBody.className='kb-body';
+      if(!colTix.length){
+        colBody.innerHTML='<div class="kb-empty">Aucun ticket</div>';
+      } else {
+        colTix.forEach(function(t){
+          var card=document.createElement('div');card.className='kb-card';
+          card.innerHTML=
+            '<div class="kb-card-title">'+esc(t.title)+'</div>'+
+            '<div class="kb-card-date">'+ago(t.updated||t.created)+'</div>';
+          colBody.appendChild(card);
+        });
+      }
+      colDiv.appendChild(bar);colDiv.appendChild(colHdr);colDiv.appendChild(colBody);
+      body.appendChild(colDiv);
+    });
+
+    section.appendChild(hdr);section.appendChild(body);
+    container.appendChild(section);
+  });
+
+  if(!hasAny){
+    container.innerHTML='<div class="kb-empty" style="padding:40px;">Aucun ticket pour votre compte.</div>';
+  }
+}
+
+// ── DEMANDES ──
+function renderDemandes(){
+  var el=document.getElementById('dem-list');
+  if(!el)return;
+  if(!demandes.length){
+    el.innerHTML='<div class="dem-empty"><div class="dem-empty-ico">💬</div>Aucune demande<br><span style="font-size:12px;">Utilisez le bouton ci-dessus pour soumettre votre premiere demande.</span></div>';
+    return;
+  }
+  el.innerHTML='';
+  demandes.forEach(function(d){
+    var card=document.createElement('div');card.className='dem-card';
+    var statusMap={pending:'⏳ En attente',approved:'✅ Approuvée',rejected:'❌ Non retenue'};
+    var statusClass={pending:'pending',approved:'approved',rejected:'rejected'};
+    var stat=d.status||'pending';
+    var html=
+      '<div class="dem-card-ttl">'+esc(d.title)+'</div>'+
+      (d.desc?'<div class="dem-card-desc">'+esc(d.desc)+'</div>':'')+
+      '<div class="dem-card-footer">'+
+        '<span class="dem-badge '+(statusClass[stat]||'pending')+'">'+(statusMap[stat]||stat)+'</span>'+
+        (stat==='approved'?'<span style="font-size:11px;color:#059669;">Ajoutée au suivi</span>':'')+
+        (stat==='rejected'&&d.motif?'<span style="font-size:11px;color:var(--text3);">Motif : '+esc(d.motif)+'</span>':'')+
+        '<span class="dem-date">'+ago(d.created)+'</span>'+
+      '</div>';
+    card.innerHTML=html;
+    el.appendChild(card);
+  });
+}
+
+function openDemande(){
+  document.getElementById('dem-title').value='';
+  document.getElementById('dem-desc').value='';
+  document.getElementById('dem-ok').style.display='none';
+  document.getElementById('dem-er').style.display='none';
+  document.getElementById('modal-dem').classList.add('open');
+}
+function closeDemande(){
+  document.getElementById('modal-dem').classList.remove('open');
+}
+function submitDemande(){
+  var title=(document.getElementById('dem-title').value||'').trim();
+  if(!title){document.getElementById('dem-title').focus();return;}
+  var desc=(document.getElementById('dem-desc').value||'').trim();
+  var now=new Date().toISOString();
+  fbAddDoc('klipper_demandes',{
+    title:title,
+    desc:desc,
+    client:currentClient,
+    token:currentToken,
+    status:'pending',
+    created:now
+  }).then(function(){
+    document.getElementById('dem-ok').style.display='block';
+    setTimeout(function(){closeDemande();loadData();},2000);
+  }).catch(function(){
+    document.getElementById('dem-er').style.display='block';
+  });
+}
+
+// ── INIT ──
+window.addEventListener('load',function(){
+  // Check URL token first
+  var urlToken=new URLSearchParams(window.location.search).get('token');
+  if(urlToken){
+    document.getElementById('code-input').value=urlToken;
+    checkToken(urlToken.toUpperCase());
+    return;
+  }
+  // Check session
+  var sessToken=sessionStorage.getItem('klp_token');
+  var sessClient=sessionStorage.getItem('klp_client');
+  if(sessToken&&sessClient){
+    currentToken=sessToken;
+    currentClient=sessClient;
+    showApp();
+    return;
+  }
+  // Show login
+  document.getElementById('code-input').addEventListener('keydown',function(e){
+    if(e.key==='Enter')doLogin();
+  });
+});
+</script>
+</body>
+</html>
