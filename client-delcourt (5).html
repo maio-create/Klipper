@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espace client — Kizeo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --purple:#471D7A;--purple2:#5B2D96;--purple-light:#F0EAF9;
+  --blue:#7EB8F7;--blue-bg:#EEF3FE;
+  --orange:#F7C97E;--orange-bg:#FEF3E6;
+  --green:#85D4B0;--green-bg:#E6F5EE;
+  --red:#F0A0A0;--red-bg:#FEE2E2;
+  --gray:#C4D4E8;--gray-bg:#F1F5F9;
+  --border:#E8E5DF;--text:#1A1A1A;--text2:#6B6B6B;--text3:#9B9B9B;
+  --bg:#F5F4F1;--white:#FFFFFF;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 20px rgba(0,0,0,0.10);
+  --pending:#F59E0B;--pending-bg:#FEF3C7;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;}
+
+/* ACCESS */
+.access-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(140deg,#2D1250 0%,var(--purple) 60%,#6B3FA0 100%);padding:20px;}
+.access-card{background:var(--white);border-radius:24px;padding:48px 44px;width:100%;max-width:400px;box-shadow:0 32px 80px rgba(0,0,0,0.35);text-align:center;}
+.brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:32px;}
+.brand-icon{width:36px;height:36px;}
+.brand-name{font-size:22px;font-weight:700;color:var(--purple);letter-spacing:.5px;}
+.access-title{font-size:20px;font-weight:600;color:var(--text);margin-bottom:8px;}
+.access-sub{font-size:13px;color:var(--text3);margin-bottom:28px;line-height:1.6;}
+.access-inp{width:100%;border:2px solid var(--border);border-radius:12px;padding:13px 16px;font-size:15px;color:var(--text);outline:none;font-family:monospace;letter-spacing:2px;text-align:center;background:#FAFAF9;transition:border-color .15s;margin-bottom:12px;}
+.access-inp:focus{border-color:var(--purple);background:var(--white);}
+.access-btn{width:100%;padding:13px;border:none;border-radius:12px;background:var(--purple);color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;}
+.access-btn:hover{background:var(--purple2);}
+.access-err{font-size:12px;color:#DC2626;margin-top:10px;display:none;}
+
+/* HEADER */
+.hdr{background:var(--purple);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.hdr-brand{display:flex;align-items:center;gap:12px;color:#fff;font-weight:700;font-size:16px;}
+.hdr-client{color:rgba(255,255,255,.6);font-size:13px;font-weight:400;margin-left:8px;padding-left:8px;border-left:1px solid rgba(255,255,255,.2);}
+.hdr-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;}
+.hdr-btn:hover{background:rgba(255,255,255,.2);}
+
+/* MAIN */
+.main{max-width:1400px;margin:0 auto;padding:20px 28px;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat-box{background:var(--white);border-radius:12px;padding:14px 20px;box-shadow:var(--shadow);}
+.stat-n{font-size:24px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.stat-l{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);}
+
+/* SECTION */
+.section-hdr{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.section-ico{width:36px;height:36px;border-radius:10px;background:var(--purple-light);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.section-ttl{font-size:16px;font-weight:700;color:var(--text);}
+.section-wrap{background:var(--white);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow);margin-bottom:16px;}
+
+/* KANBAN */
+.kb-type-section{margin-bottom:12px;}
+.kb-type-hdr{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px 10px 0 0;background:var(--white);border:1px solid var(--border);border-left:4px solid var(--border);cursor:pointer;user-select:none;}
+.kb-type-emoji{font-size:16px;}
+.kb-type-ttl{font-size:13px;font-weight:700;color:var(--text);flex:1;}
+.kb-type-cnt{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;}
+.kb-type-toggle{font-size:12px;color:var(--text3);margin-left:8px;transition:transform .2s;}
+.kb-type-body{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:10px;background:var(--bg);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;}
+@media(max-width:900px){.kb-type-body{grid-template-columns:repeat(2,1fr);}.stats-row{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.kb-type-body{grid-template-columns:1fr;}}
+
+.kb-col{background:var(--white);border-radius:10px;border:1px solid var(--border);overflow:hidden;}
+.kb-col-bar{height:3px;}
+.kb-col-hdr{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);}
+.kb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.kb-col-ttl{font-size:11px;font-weight:600;color:var(--text2);flex:1;}
+.kb-cnt{font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;}
+.kb-body{padding:6px;max-height:280px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.kb-card{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:5px;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+.kb-card:last-child{margin-bottom:0;}
+.kb-card:hover{border-color:var(--purple);box-shadow:0 2px 8px rgba(71,29,122,.1);}
+.kb-card-title{font-size:11px;color:var(--text);line-height:1.4;margin-bottom:2px;}
+.kb-card-date{font-size:10px;color:var(--text3);}
+.kb-empty{padding:16px;text-align:center;font-size:11px;color:var(--text3);font-style:italic;}
+
+/* DEMANDES */
+.dem-empty{text-align:center;padding:40px 20px;color:var(--text3);}
+.dem-empty-ico{font-size:32px;margin-bottom:12px;}
+.dem-card{border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:12px;background:var(--white);}
+.dem-card-ttl{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.dem-card-desc{font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.5;}
+.dem-card-footer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.dem-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;}
+.dem-badge.pending{background:var(--pending-bg);color:var(--pending);}
+.dem-badge.approved{background:var(--green-bg);color:#059669;}
+.dem-badge.rejected{background:var(--red-bg);color:#DC2626;}
+.dem-date{font-size:11px;color:var(--text3);margin-left:auto;}
+.btn-delete-dem{background:none;border:1px solid #FCA5A5;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;color:#DC2626;font-family:inherit;transition:all .15s;}
+.btn-delete-dem:hover{background:#FEE2E2;}
+
+/* MODAL NOUVELLE DEMANDE */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:var(--white);border-radius:20px;padding:28px;width:100%;max-width:500px;box-shadow:var(--shadow-md);}
+.modal-ttl{font-size:16px;font-weight:700;margin-bottom:6px;}
+.modal-sub{font-size:12px;color:var(--text3);margin-bottom:20px;}
+.form-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);margin-bottom:5px;display:block;}
+.form-inp{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--text);transition:border-color .15s;margin-bottom:14px;resize:vertical;}
+.form-inp:focus{border-color:var(--purple);}
+.form-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:4px;}
+.btn-cancel{background:none;border:1.5px solid var(--border);border-radius:10px;padding:9px 18px;font-size:13px;cursor:pointer;font-family:inherit;color:var(--text2);}
+.btn-submit{background:var(--purple);border:none;border-radius:10px;padding:9px 20px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;}
+.btn-new{background:var(--purple);border:none;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;}
+.feedback{border-radius:14px;padding:16px;text-align:center;display:none;margin-top:16px;font-size:13px;}
+.feedback.ok{background:var(--green-bg);color:#065F46;}
+.feedback.er{background:var(--red-bg);color:#991B1B;}
+
+/* TICKET DETAIL MODAL */
+.ticket-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.ticket-modal-overlay.open{opacity:1;pointer-events:all;}
+.ticket-modal{background:var(--white);border-radius:16px;padding:24px;width:100%;max-width:560px;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow-md);}
+.ticket-modal-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;}
+.ticket-modal-title{font-size:15px;font-weight:700;color:var(--text);line-height:1.4;flex:1;}
+.ticket-modal-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--text3);}
+.ticket-modal-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.ticket-modal-section{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:6px;}
+.ticket-modal-desc{font-size:13px;color:var(--text2);line-height:1.7;background:var(--bg);border-radius:8px;padding:12px;margin-bottom:14px;}
+
+/* CALENDAR */
+.view-tabs{display:flex;gap:8px;margin-bottom:16px;}
+.view-tab{padding:7px 16px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);font-size:12px;font-weight:600;cursor:pointer;color:var(--text2);transition:all .15s;font-family:inherit;}
+.view-tab.active{background:var(--purple);color:#fff;border-color:var(--purple);}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.cal-month{font-size:15px;font-weight:700;color:var(--text);}
+.cal-btn{background:var(--white);border:1.5px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;color:var(--text2);font-family:inherit;}
+.cal-btn:hover{border-color:var(--purple);color:var(--purple);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-day-hdr{text-align:center;font-size:10px;font-weight:600;color:var(--text3);padding:4px 0;text-transform:uppercase;}
+.cal-day{min-height:80px;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:6px;}
+.cal-day.today{border-color:var(--purple);background:var(--purple-light);}
+.cal-day.other-month{background:var(--bg);opacity:.5;}
+.cal-day-num{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:4px;}
+.cal-day.today .cal-day-num{color:var(--purple);}
+.cal-ticket{font-size:10px;padding:2px 6px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;line-height:1.4;}
+
+.loading{text-align:center;padding:60px;color:var(--text3);font-size:13px;}
+</style>
+</head>
+<body>
+
+<!-- ACCESS -->
+<div class="access-screen" id="access-screen">
+  <div class="access-card">
+    <div class="brand">
+      <svg class="brand-icon" viewBox="0 0 34 34" fill="none">
+        <path d="M4 4 L30 4 L30 30 L4 30 L4 10 L24 10 L24 26 L8 26 L8 14 L20 14 L20 22 L11 22 L11 17 L17 17 L17 19" stroke="#471D7A" stroke-width="2.2" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+        <circle cx="17" cy="19" r="1.5" fill="#471D7A"/>
+      </svg>
+      <span class="brand-name">KLIPPER</span>
+    </div>
+    <div class="access-title">Espace client</div>
+    <div class="access-sub">Consultez vos demandes et leur avancement en temps réel.</div>
+    <input class="access-inp" id="code-input" placeholder="Votre code accès" maxlength="14" autocomplete="off" spellcheck="false">
+    <button class="access-btn" onclick="doLogin()">Accéder à mon espace</button>
+    <div class="access-err" id="access-err">Code invalide. Contactez votre interlocuteur Kizeo.</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app-screen" style="display:none;">
+  <div class="hdr">
+    <div class="hdr-brand">
+      <svg width="24" height="24" viewBox="0 0 34 34" fill="none">
+        <path d="M4 4 L30 4 L30 30 L4 30 L4 10 L24 10 L24 26 L8 26 L8 14 L20 14 L20 22 L11 22 L11 17 L17 17 L17 19" stroke="white" stroke-width="2.2" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+        <circle cx="17" cy="19" r="1.5" fill="white"/>
+      </svg>
+      KLIPPER
+      <span class="hdr-client" id="hdr-client-name"></span>
+    </div>
+    <button class="hdr-btn" onclick="doLogout()">Déconnexion</button>
+  </div>
+
+  <div class="main">
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-n" id="s-total">-</div><div class="stat-l">Demandes</div></div>
+      <div class="stat-box"><div class="stat-n" style="color:var(--blue)" id="s-open">-</div><div class="stat-l">En cours</div></div>
+      <div class="stat-box"><div class="stat-n" style="color:var(--orange)" id="s-test">-</div><div class="stat-l">En test</div></div>
+      <div class="stat-box"><div class="stat-n" style="color:var(--green)" id="s-done">-</div><div class="stat-l">Livrées</div></div>
+    </div>
+
+    <!-- KANBAN TICKETS -->
+    <div class="section-wrap">
+      <div class="section-hdr" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="section-ico">📋</div>
+          <div><div class="section-ttl">Suivi de vos tickets</div></div>
+        </div>
+        <div class="view-tabs">
+          <button class="view-tab active" onclick="switchView('kanban',this)">🗂 Kanban</button>
+          <button class="view-tab" onclick="switchView('calendar',this)">📅 Calendrier</button>
+        </div>
+      </div>
+      <div id="view-kanban">
+        <div id="kb-sections-client"><div class="loading">Chargement...</div></div>
+      </div>
+      <div id="view-calendar" style="display:none;">
+        <div class="cal-nav">
+          <button class="cal-btn" onclick="calNav(-1)">← Mois préc.</button>
+          <div class="cal-month" id="cal-month-lbl"></div>
+          <button class="cal-btn" onclick="calNav(1)">Mois suiv. →</button>
+        </div>
+        <div class="cal-grid" id="cal-header"></div>
+        <div class="cal-grid" id="cal-body" style="margin-top:4px;"></div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;"><span style="width:12px;height:12px;border-radius:3px;background:#7EB8F7;display:inline-block;"></span>À traiter</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;"><span style="width:12px;height:12px;border-radius:3px;background:#F7C97E;display:inline-block;"></span>En test</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;"><span style="width:12px;height:12px;border-radius:3px;background:#85D4B0;display:inline-block;"></span>Livré</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;"><span style="width:12px;height:12px;border-radius:3px;background:#F0A0A0;display:inline-block;"></span>Refusé</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEMANDES CLIENT -->
+    <div class="section-wrap">
+      <div class="section-hdr" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="section-ico">💬</div>
+          <div>
+            <div class="section-ttl">Mes demandes</div>
+            <div style="font-size:12px;color:var(--text3);">Une question, une nouvelle demande ? Soumettez-la directement ici.</div>
+          </div>
+        </div>
+        <button class="btn-new" onclick="openDemande()">+ Nouvelle demande</button>
+      </div>
+      <div id="dem-list"><div class="loading">Chargement...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOUVELLE DEMANDE -->
+<div class="modal-overlay" id="modal-dem">
+  <div class="modal-box">
+    <div class="modal-ttl">Nouvelle demande</div>
+    <div class="modal-sub">Décrivez votre demande. Notre équipe reviendra vers vous rapidement.</div>
+    <label class="form-lbl">Intitulé de la demande *</label>
+    <input class="form-inp" id="dem-title" placeholder="Ex : Pouvoir exporter les données en PDF…">
+    <label class="form-lbl">Description / Contexte</label>
+    <textarea class="form-inp" id="dem-desc" rows="4" placeholder="Décrivez le contexte, vos besoins…"></textarea>
+    <div class="form-btns">
+      <button class="btn-cancel" onclick="closeDemande()">Annuler</button>
+      <button class="btn-submit" id="dem-submit-btn" onclick="submitDemande()">Envoyer ma demande</button>
+    </div>
+    <div class="feedback ok" id="dem-ok">✅ Demande envoyée ! Notre équipe Kizeo va examiner votre demande.</div>
+    <div class="feedback er" id="dem-er">❌ Une erreur est survenue. Veuillez réessayer.</div>
+  </div>
+</div>
+
+<!-- TICKET DETAIL MODAL -->
+<div class="ticket-modal-overlay" id="ticket-modal-overlay" onclick="closeTicketModal(event)">
+  <div class="ticket-modal">
+    <div class="ticket-modal-hdr">
+      <div class="ticket-modal-title" id="tm-title"></div>
+      <button class="ticket-modal-close" onclick="closeTicketModal()">✕</button>
+    </div>
+    <div class="ticket-modal-meta" id="tm-meta"></div>
+    <div class="ticket-modal-section">Description</div>
+    <div class="ticket-modal-desc" id="tm-desc"></div>
+    <div id="tm-dates" style="font-size:11px;color:var(--text3);"></div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+var WORKER_URL = 'https://klipper-notion-proxy.maio-803.workers.dev';
+var NOTION_TOKEN = 'ntn_G9922423959888ol51nHeXT0soBvA8LQ2niZLgmFXeYaUx';
+var NOTION_DB = '28f24f6c2c9780789ba0dc98d2e377fa';
+var CLIENT_VALUE = 'DELCOURT'; // valeur dans "De la part de"
+
+var FB_PROJECT = 'kizeo-crm-afcc3';
+var FB_API_KEY = 'AIzaSyDReuFdkQd66n1fIykQh34aZLgL7EwFaF4';
+
+var currentToken = null;
+var currentClient = null;
+var tickets = [];       // depuis Notion
+var demandes = [];      // depuis Firebase
+var db = null;
+
+// ── COLONNES KANBAN ──
+// Notion status → colonne visuelle
+// 4 colonnes : Demandes en attente | En cours | En cours de test | Livré
+var NOTION_STATUS_MAP = {
+  'Demandes en attente':  'pending',
+  'A faire (V & R)':      'encours',
+  'En cours (V & R)':     'encours',
+  'A tester Prissou':     'test',
+  'Fait et livré':        'done',
+  // Cachés : tout le reste
+};
+
+var COLS_CLIENT = [
+  {id:'pending', label:'Demandes en attente', color:'#F59E0B', bg:'#FEF3C7'},
+  {id:'encours', label:'En cours',            color:'#7EB8F7', bg:'#EEF3FE'},
+  {id:'test',    label:'En cours de test',    color:'#C084FC', bg:'#F3E8FF'},
+  {id:'done',    label:'Livré',               color:'#85D4B0', bg:'#E6F5EE'},
+];
+
+var TYPES_CLIENT = [
+  {id:'bug',          label:'Bugs',          emoji:'🐛', color:'#7C3AED'},
+  {id:'indispensable',label:'Indispensables', emoji:'⚡', color:'#D97706'},
+  {id:'evolution',    label:'Évolutions',     emoji:'✨', color:'#0891B2'},
+  {id:'other',        label:'Autres',         emoji:'📌', color:'#64748B'},
+];
+
+// ── UTILS ──
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function ago(ts){
+  if(!ts)return'';
+  var d=new Date(ts),now=new Date(),diff=Math.floor((now-d)/1000);
+  if(diff<60)return'à l\'instant';
+  if(diff<3600)return'il y a '+Math.floor(diff/60)+' min';
+  if(diff<86400)return'il y a '+Math.floor(diff/3600)+' h';
+  return'il y a '+Math.floor(diff/86400)+' j';
+}
+function fmtDate(iso){
+  if(!iso)return'';
+  return new Date(iso).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+// Notion status → colonne kanban
+function notionStatusToCol(status){
+  return NOTION_STATUS_MAP[status] || 'open';
+}
+
+// Notion type → type kanban
+function notionTypeToKind(type){
+  if(!type)return'other';
+  if(type.includes('Bug'))return'bug';
+  if(type.includes('Indispensable'))return'indispensable';
+  if(type.includes('lioration')||type.includes('volution')||type.includes('Feature'))return'evolution';
+  return'other';
+}
+
+// ── FIREBASE ──
+function initFirebase(){
+  if(db)return Promise.resolve();
+  return import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js').then(function(m){
+    var app=m.initializeApp({apiKey:FB_API_KEY,projectId:FB_PROJECT});
+    return import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js').then(function(fs){
+      db=fs.getFirestore(app);window._fsdk=fs;
+    });
+  });
+}
+function fbGetDocs(col){return initFirebase().then(function(){return window._fsdk.getDocs(window._fsdk.collection(db,col));});}
+function fbAddDoc(col,data){return initFirebase().then(function(){return window._fsdk.addDoc(window._fsdk.collection(db,col),data);});}
+function fbDeleteDoc(col,id){return initFirebase().then(function(){return window._fsdk.deleteDoc(window._fsdk.doc(db,col,id));});}
+
+// ── AUTH (Firebase tokens) ──
+function doLogin(){
+  var code=(document.getElementById('code-input').value||'').trim().toUpperCase();
+  if(!code){showErr('Saisissez votre code d\'accès.');return;}
+  checkToken(code);
+}
+function checkToken(code){
+  fbGetDocs('klipper_tokens').then(function(snap){
+    var found=null;
+    snap.forEach(function(doc){var d=doc.data();if(d.token===code){found={...d,_id:doc.id};}});
+    if(!found){showErr('Code invalide. Contactez votre interlocuteur Kizeo.');return;}
+    currentToken=code;
+    currentClient=found.name||found.client||found.clientName||code;
+    sessionStorage.setItem('klp_token',code);
+    sessionStorage.setItem('klp_client',currentClient);
+    showApp();
+  }).catch(function(){showErr('Erreur de connexion. Réessayez.');});
+}
+function showErr(msg){var el=document.getElementById('access-err');el.textContent=msg;el.style.display='block';}
+function doLogout(){
+  sessionStorage.removeItem('klp_token');sessionStorage.removeItem('klp_client');
+  document.getElementById('access-screen').style.display='flex';
+  document.getElementById('app-screen').style.display='none';
+}
+function showApp(){
+  document.getElementById('access-screen').style.display='none';
+  document.getElementById('app-screen').style.display='block';
+  document.getElementById('hdr-client-name').textContent=currentClient;
+  loadData();
+}
+
+// ── LOAD TICKETS DEPUIS NOTION ──
+async function loadNotionTickets(){
+  var allResults=[];
+  var cursor=null;
+  do {
+    var body={
+      filter:{property:'De la part de',multi_select:{contains:CLIENT_VALUE}},
+      sorts:[{property:'Date de création',direction:'descending'}],
+      page_size:100
+    };
+    if(cursor)body.start_cursor=cursor;
+
+    var resp=await fetch(WORKER_URL+'/databases/'+NOTION_DB+'/query',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Notion-Token':NOTION_TOKEN},
+      body:JSON.stringify(body)
+    });
+    if(!resp.ok)throw new Error('Erreur Notion '+resp.status);
+    var data=await resp.json();
+    allResults=allResults.concat(data.results||[]);
+    cursor=data.has_more?data.next_cursor:null;
+  } while(cursor);
+
+  // Mapper les pages Notion en objets ticket
+  tickets=allResults.map(function(page){
+    var props=page.properties||{};
+    var title=(props['Description']&&props['Description'].title&&props['Description'].title[0])?props['Description'].title[0].plain_text:'(sans titre)';
+    var status=(props['Status']&&props['Status'].select)?props['Status'].select.name:'';
+    var type=(props['Type']&&props['Type'].select)?props['Type'].select.name:'';
+    var prio=(props['Priorité']&&props['Priorité'].select)?props['Priorité'].select.name:'';
+    var created=props['Date de création']?props['Date de création'].created_time:page.created_time;
+    return{
+      _id:page.id,
+      title:title,
+      status:status,
+      type:type,
+      prio:prio,
+      created:created,
+      updated:page.last_edited_time,
+      col:notionStatusToCol(status),
+      kind:notionTypeToKind(type)
+    };
+  });
+}
+
+// ── LOAD DEMANDES DEPUIS FIREBASE ──
+async function loadDemandes(){
+  var snap=await fbGetDocs('klipper_demandes');
+  var cur=(currentClient||'').trim().toLowerCase();
+  demandes=[];
+  snap.forEach(function(doc){
+    var d=doc.data();d._id=doc.id;
+    var c=(d.client||'').trim().toLowerCase();
+    if(c===cur||c===CLIENT_VALUE.toLowerCase())demandes.push(d);
+  });
+  demandes.sort(function(a,b){return new Date(b.created||0)-new Date(a.created||0);});
+}
+
+function loadData(){
+  // Tickets Notion
+  loadNotionTickets().then(function(){
+    renderKanban();
+  }).catch(function(e){
+    document.getElementById('kb-sections-client').innerHTML='<div style="padding:20px;color:#DC2626;font-size:13px;">Erreur de chargement des tickets Notion : '+esc(e.message)+'</div>';
+  });
+  // Demandes Firebase
+  loadDemandes().then(function(){
+    renderDemandes();
+  }).catch(function(){
+    document.getElementById('dem-list').innerHTML='<div style="padding:20px;color:#DC2626;font-size:13px;">Erreur de chargement des demandes.</div>';
+  });
+}
+
+// ── KANBAN ──
+function renderKanban(){
+  var container=document.getElementById('kb-sections-client');
+  if(!container)return;
+
+  var approvedDemandes=demandes.filter(function(d){return d.status==='approved';});
+
+  // Stats
+  var pendingCount=tickets.filter(function(t){return t.col==='pending';}).length+approvedDemandes.length;
+  var encoursCount=tickets.filter(function(t){return t.col==='encours';}).length;
+  var testCount=tickets.filter(function(t){return t.col==='test';}).length;
+  var doneCount=tickets.filter(function(t){return t.col==='done';}).length;
+  var total=tickets.length+approvedDemandes.length;
+  document.getElementById('s-total').textContent=total;
+  document.getElementById('s-open').textContent=pendingCount+encoursCount;
+  document.getElementById('s-test').textContent=testCount;
+  document.getElementById('s-done').textContent=doneCount;
+
+  container.innerHTML='';
+
+  // Vue kanban plate : 4 colonnes sans regroupement par type
+  var kb=document.createElement('div');
+  kb.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:10px;';
+
+  COLS_CLIENT.forEach(function(col){
+    var colTix;
+    if(col.id==='pending'){
+      colTix=tickets.filter(function(t){return t.col==='pending';});
+    } else {
+      colTix=tickets.filter(function(t){return t.col===col.id;});
+    }
+
+    var colDiv=document.createElement('div');colDiv.className='kb-col';
+    var bar=document.createElement('div');bar.className='kb-col-bar';bar.style.background=col.color;
+    var colHdr=document.createElement('div');colHdr.className='kb-col-hdr';
+    colHdr.innerHTML=
+      '<div class="kb-dot" style="background:'+col.color+'"></div>'+
+      '<div class="kb-col-ttl">'+col.label+'</div>'+
+      '<div class="kb-cnt" style="background:'+col.bg+';color:'+col.color+'">'+colTix.length+'</div>';
+
+    var colBody=document.createElement('div');colBody.className='kb-body';
+    if(!colTix.length){
+      colBody.innerHTML='<div class="kb-empty">Aucun ticket</div>';
+    } else {
+      colTix.forEach(function(t){
+        var card=document.createElement('div');card.className='kb-card';
+        card.innerHTML=
+          '<div class="kb-card-title">'+esc(t.title||'')+'</div>'+
+          '<div class="kb-card-date">'+(t.isDemande?'Demande approuvée · ':'')+ago(t.updated||t.created)+'</div>';
+        if(!t.isDemande){
+          card.dataset.id=t._id;
+          card.onclick=function(){openTicketModal(this.dataset.id);};
+        }
+        colBody.appendChild(card);
+      });
+    }
+    colDiv.appendChild(bar);colDiv.appendChild(colHdr);colDiv.appendChild(colBody);
+    kb.appendChild(colDiv);
+  });
+
+  container.appendChild(kb);
+}
+// ── DEMANDES ──
+function renderDemandes(){
+  var el=document.getElementById('dem-list');if(!el)return;
+  if(!demandes.length){
+    el.innerHTML='<div class="dem-empty"><div class="dem-empty-ico">💬</div>Aucune demande<br><span style="font-size:12px;">Utilisez le bouton ci-dessus pour soumettre votre première demande.</span></div>';
+    return;
+  }
+  el.innerHTML='';
+  demandes.forEach(function(d){
+    var card=document.createElement('div');card.className='dem-card';
+    var statusMap={pending:'⏳ En attente d\'approbation',approved:'✅ Approuvée — ajoutée au suivi',rejected:'❌ Non retenue'};
+    var statusClass={pending:'pending',approved:'approved',rejected:'rejected'};
+    var stat=d.status||'pending';
+    card.innerHTML=
+      '<div class="dem-card-ttl">'+esc(d.title)+'</div>'+
+      (d.desc?'<div class="dem-card-desc">'+esc(d.desc)+'</div>':'')+
+      '<div class="dem-card-footer">'+
+        '<span class="dem-badge '+(statusClass[stat]||'pending')+'">'+(statusMap[stat]||stat)+'</span>'+
+        (stat==='rejected'&&d.motif?'<span style="font-size:11px;color:var(--text3);font-style:italic;">Motif : '+esc(d.motif)+'</span>':'')+
+        '<span class="dem-date">'+fmtDate(d.created)+'</span>'+
+        (stat==='pending'?'<button class="btn-delete-dem" data-id="'+d._id+'" onclick="deleteDemande(this.dataset.id)">🗑 Supprimer</button>':'')+
+      '</div>';
+    el.appendChild(card);
+  });
+}
+
+function openDemande(){
+  document.getElementById('dem-title').value='';
+  document.getElementById('dem-desc').value='';
+  document.getElementById('dem-ok').style.display='none';
+  document.getElementById('dem-er').style.display='none';
+  document.getElementById('modal-dem').classList.add('open');
+}
+function closeDemande(){document.getElementById('modal-dem').classList.remove('open');}
+
+function submitDemande(){
+  var title=(document.getElementById('dem-title').value||'').trim();
+  if(!title){document.getElementById('dem-title').focus();return;}
+  var desc=(document.getElementById('dem-desc').value||'').trim();
+  var btn=document.getElementById('dem-submit-btn');
+  btn.textContent='Envoi…';btn.disabled=true;
+  fbAddDoc('klipper_demandes',{
+    title:title,
+    desc:desc,
+    client:currentClient.toLowerCase(),
+    token:currentToken,
+    status:'pending',
+    created:new Date().toISOString()
+  }).then(function(){
+    document.getElementById('dem-ok').style.display='block';
+    setTimeout(function(){closeDemande();loadDemandes().then(renderDemandes);},2000);
+  }).catch(function(){
+    document.getElementById('dem-er').style.display='block';
+  }).finally(function(){btn.textContent='Envoyer ma demande';btn.disabled=false;});
+}
+
+function deleteDemande(id){
+  if(!confirm('Supprimer cette demande ?'))return;
+  fbDeleteDoc('klipper_demandes',id).then(function(){
+    demandes=demandes.filter(function(d){return d._id!==id;});
+    renderDemandes();renderKanban();
+  });
+}
+
+// ── TICKET DETAIL MODAL ──
+function openTicketModal(id){
+  var t=tickets.find(function(tk){return tk._id===id;});
+  if(!t)return;
+  var statusLabels={
+    '💬 Remontée':'Remontée','A faire (V & R)':'À faire',
+    '⏳ A tester Prissou':'En test','En cours (V & R)':'En cours',
+    'Prévenir le client':'À communiquer','✅ Fait et livré':'Livré ✅',
+    '❌ Refusé':'Refusé','Stand by':'Stand by'
+  };
+  var colColors={pending:'#F59E0B',encours:'#7EB8F7',test:'#C084FC',done:'#85D4B0'};
+  var col=t.col||'pending';
+  var color=colColors[col]||'#C4D4E8';
+
+  document.getElementById('tm-title').textContent=t.title||'';
+  document.getElementById('tm-meta').innerHTML=
+    '<span style="background:'+color+'33;color:'+color.replace(/F/g,'A')+';padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">'+(statusLabels[t.status]||t.status||'—')+'</span>'+
+    (t.type?'<span style="background:var(--bg);border:1px solid var(--border);padding:3px 10px;border-radius:20px;font-size:11px;">'+esc(t.type)+'</span>':'')+
+    (t.prio?'<span style="background:#FEE2E2;color:#DC2626;padding:3px 10px;border-radius:20px;font-size:11px;">'+esc(t.prio)+'</span>':'');
+  document.getElementById('tm-desc').textContent='Aucune description disponible.';
+  document.getElementById('tm-dates').textContent=
+    (t.created?'Créé le '+fmtDate(t.created):'')+(t.updated?' · Mis à jour le '+fmtDate(t.updated):'');
+  document.getElementById('ticket-modal-overlay').classList.add('open');
+}
+function closeTicketModal(e){
+  if(e&&e.target!==document.getElementById('ticket-modal-overlay'))return;
+  document.getElementById('ticket-modal-overlay').classList.remove('open');
+}
+
+// ── CALENDAR ──
+var _calYear=new Date().getFullYear(),_calMonth=new Date().getMonth();
+var CAL_COLORS={pending:'#F59E0B',encours:'#7EB8F7',test:'#C084FC',done:'#85D4B0'};
+var CAL_TEXT={pending:'#92400E',encours:'#1A5FAD',test:'#6B21A8',done:'#1A6645'};
+
+function switchView(view,el){
+  document.querySelectorAll('.view-tab').forEach(function(b){b.classList.remove('active');});
+  if(el)el.classList.add('active');
+  document.getElementById('view-kanban').style.display=view==='kanban'?'':'none';
+  document.getElementById('view-calendar').style.display=view==='calendar'?'':'none';
+  if(view==='calendar')renderCalendar();
+}
+function calNav(dir){
+  _calMonth+=dir;
+  if(_calMonth>11){_calMonth=0;_calYear++;}
+  if(_calMonth<0){_calMonth=11;_calYear--;}
+  renderCalendar();
+}
+function renderCalendar(){
+  var days=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  var months=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  document.getElementById('cal-month-lbl').textContent=months[_calMonth]+' '+_calYear;
+  document.getElementById('cal-header').innerHTML=days.map(function(d){return'<div class="cal-day-hdr">'+d+'</div>';}).join('');
+
+  var byDate={};
+  tickets.forEach(function(t){
+    var d=new Date(t.created||0);
+    var key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+    if(!byDate[key])byDate[key]=[];
+    byDate[key].push(t);
+  });
+
+  var firstDay=new Date(_calYear,_calMonth,1);
+  var lastDay=new Date(_calYear,_calMonth+1,0);
+  var startDow=firstDay.getDay()||7;
+  var today=new Date();
+  var cells=[];
+
+  for(var i=1;i<startDow;i++){
+    cells.push('<div class="cal-day other-month"><div class="cal-day-num">'+(new Date(_calYear,_calMonth,-(startDow-i-1))).getDate()+'</div></div>');
+  }
+  for(var d=1;d<=lastDay.getDate();d++){
+    var isToday=today.getFullYear()===_calYear&&today.getMonth()===_calMonth&&today.getDate()===d;
+    var key=_calYear+'-'+(_calMonth+1)+'-'+d;
+    var dayTix=byDate[key]||[];
+    var html='<div class="cal-day'+(isToday?' today':'')+(dayTix.length?' has-tickets':'')+'"><div class="cal-day-num">'+d+'</div>';
+    dayTix.slice(0,2).forEach(function(t){
+      var c=CAL_COLORS[t.col]||'#C4D4E8';var tc=CAL_TEXT[t.col]||'#333';
+      html+='<div class="cal-ticket" style="background:'+c+'33;color:'+tc+';border-left:2px solid '+c+';" title="'+esc(t.title)+'">'+esc(t.title.substring(0,22))+(t.title.length>22?'…':'')+'</div>';
+    });
+    if(dayTix.length>2)html+='<div style="font-size:9px;color:var(--text3);padding:1px 6px;">+'+(dayTix.length-2)+' autres</div>';
+    html+='</div>';
+    cells.push(html);
+  }
+  var rem=(7-(cells.length%7))%7;
+  for(var i=1;i<=rem;i++)cells.push('<div class="cal-day other-month"><div class="cal-day-num">'+i+'</div></div>');
+  document.getElementById('cal-body').innerHTML=cells.join('');
+}
+
+// ── INIT ──
+window.addEventListener('load',function(){
+  var urlToken=new URLSearchParams(window.location.search).get('token');
+  var sessToken=sessionStorage.getItem('klp_token');
+  var sessClient=sessionStorage.getItem('klp_client');
+  if(sessToken&&sessClient&&!urlToken){
+    currentToken=sessToken;currentClient=sessClient;
+    showApp();return;
+  }
+  initFirebase().then(function(){
+    if(urlToken){
+      document.getElementById('code-input').value=urlToken;
+      checkToken(urlToken.toUpperCase());
+    } else {
+      document.getElementById('code-input').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+    }
+  }).catch(function(){showErr('Erreur de connexion au serveur.');});
+});
+</script>
+</body>
+</html>
